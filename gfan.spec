@@ -52,12 +52,16 @@ cp -far homepage %{buildroot}%{_docdir}/%{name}
 # this tries to do an "upload", using scp with the package's author account...
 rm -f %{buildroot}%{_docdir}/%{name}/homepage/Makefile
 
+pushd %{buildroot}%{_bindir}
+    ./%{name} installlinks
+popd
+
 %clean
 rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%{_bindir}/%{name}
+%{_bindir}/*
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*
 %dir %doc %{_docdir}/%{name}
