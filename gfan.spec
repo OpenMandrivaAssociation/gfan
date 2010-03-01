@@ -2,15 +2,17 @@ Name:		gfan
 Group:		Sciences/Mathematics
 License:	GPL
 Summary:	Computation of Gröbner fans and tropical varieties
-Version:	0.3
-Release:	%mkrel 2
-Source:		http://www.math.tu-berlin.de/~jensen/software/gfan/gfan0.3.tar.gz
+Version:	0.4plus
+Release:	%mkrel 1
+Source:		http://www.math.tu-berlin.de/~jensen/software/gfan/gfan0.4plus.tar.gz
 URL:		http://www.math.tu-berlin.de/~jensen/software/gfan/gfan.html
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 BuildRequires:	gcc-c++
 BuildRequires:	libgmp-devel
 BuildRequires:	cddlib-devel
+
+Patch0:		sagemath.patch
 
 %description
 Gfan is a software package for computing Gröbner fans and tropical varieties.
@@ -31,6 +33,8 @@ compared to programs such as CoCoA, Singular and Macaulay2.
 
 %prep
 %setup -q -n %{name}%{version}
+
+%patch0 -p1
 
 %build
 make						\
