@@ -3,7 +3,7 @@ Group:		Sciences/Mathematics
 License:	GPL
 Summary:	Computation of Gröbner fans and tropical varieties
 Version:	0.4plus
-Release:	%mkrel 1
+Release:	%mkrel 2
 Source:		http://www.math.tu-berlin.de/~jensen/software/gfan/gfan0.4plus.tar.gz
 URL:		http://www.math.tu-berlin.de/~jensen/software/gfan/gfan.html
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
