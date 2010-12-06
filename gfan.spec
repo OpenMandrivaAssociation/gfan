@@ -13,6 +13,8 @@ BuildRequires:	libgmp-devel
 BuildRequires:	cddlib-devel
 
 Patch0:		sagemath.patch
+Patch1:		gfan0.4plus-gcc45.patch
+Patch2:		gfan0.4plus-fix-str-fmt.patch
 
 %description
 Gfan is a software package for computing Gröbner fans and tropical varieties.
@@ -35,15 +37,19 @@ compared to programs such as CoCoA, Singular and Macaulay2.
 %setup -q -n %{name}%{version}
 
 %patch0 -p1
+%patch1 -p0
+%patch2 -p0 -b .str
 
 %build
 make						\
+	OPTFLAGS="%{optflags} -DGMPRATIONAL"	\
 	PREFIX=%{_prefix}			\
 	CDD_LINKOPTIONS=-lcddgmp		\
 	CDD_INCLUDEOPTIONS=-I%{_includedir}/cdd	\
 	all
 
 %install
+rm -fr %buildroot
 mkdir -p %{buildroot}%{_bindir}
 cp -fa %{name} %{buildroot}%{_bindir}
 
