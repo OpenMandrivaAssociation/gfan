@@ -1,0 +1,11 @@
+--- linalg.cpp.build	2010-12-06 06:36:21.000000000 +0100
++++ linalg.cpp	2010-12-06 06:36:49.000000000 +0100
+@@ -525,7 +525,7 @@
+ }
+ 
+ 
+-FieldMatrix::FieldMatrix FieldMatrix::solver()const
++FieldMatrix FieldMatrix::solver()const
+ {
+   FieldMatrix ret=combineOnTop(*this,theField.zHomomorphism(-1)*identity(theField,getWidth())).transposed();
+ 
