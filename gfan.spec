@@ -1,78 +1,99 @@
-Name:		gfan
-Group:		Sciences/Mathematics
-License:	GPL
-Summary:	Computation of Gröbner fans and tropical varieties
-Version:	0.4plus
-Release:	%mkrel 2
-Source:		http://www.math.tu-berlin.de/~jensen/software/gfan/gfan0.4plus.tar.gz
-URL:		http://www.math.tu-berlin.de/~jensen/software/gfan/gfan.html
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Name:           gfan
+Version:        0.5
+Release:        1%{?dist}
+Summary:        Software for Computing Gröbner Fans and Tropical Varieties
+License:        GPL+
+URL:            http://www.math.tu-berlin.de/~jensen/software/gfan/gfan.html
+Source0:        http://www.math.tu-berlin.de/~jensen/software/gfan/gfan%{version}.tar.gz
+# Sent upstream 2011 Apr 27.  Respect DESTDIR
+Patch0:         gfan-respect-destdir.patch
+# Sent upstream 2011 Apr 27.  Fix 64-bit issues in printf statements by
+# using %%zu instead of %%i for printing size_t values.
+Patch1:         gfan-format.patch
+# Sent upstream 2011 Apr 27.  Fix warnings that could indicate runtime
+# problems.
+Patch2:         gfan-warning.patch
+# Treate plain "gfan" call as "gfan_bases" call (as done in previous versions)
+# instead of priting warning telling to call it as "gfan_bases" and exiting
+Patch3:         gfan-permissive.patch
 
-BuildRequires:	gcc-c++
-BuildRequires:	libgmp-devel
-BuildRequires:	cddlib-devel
+BuildRequires:  cddlib-devel
+BuildRequires:  gmp-devel
 
-Patch0:		sagemath.patch
-Patch1:		gfan0.4plus-gcc45.patch
-Patch2:		gfan0.4plus-fix-str-fmt.patch
 
 %description
-Gfan is a software package for computing Gröbner fans and tropical varieties.
-These are polyhedral fans associated to polynomial ideals. The maximal cones
-of a Gröbner fan are in bijection with the marked reduced Gröbner bases of
-its defining ideal. The software computes all marked reduced Gröbner bases
-of an ideal. Their union is a universal Gröbner basis. The tropical variety
-of a polynomial ideal is a certain subcomplex of the Gröbner fan. Gfan
-contains algorithms for computing this complex for general ideals and
-specialized algorithms for tropical curves, tropical hypersurfaces and
-tropical varieties of prime ideals. In addition to the above core functions
-the package contains many tools which are useful in the study of Gröbner
-bases, initial ideals and tropical geometry. Among these are an interactive
+The software computes all marked reduced Gröbner bases of an ideal.
+Their union is a universal Gröbner basis. Gfan contains algorithms for
+computing this complex for general ideals and specialized algorithms
+for tropical curves, tropical hypersurfaces and tropical varieties of
+prime ideals. In addition to the above core functions the package
+contains many tools which are useful in the study of Gröbner bases,
+initial ideals and tropical geometry. Among these are an interactive
 traversal program for Gröbner fans and programs for graphical renderings.
-The full list of commands can be found in Appendix B of the manual. For
-ordinary Gröbner basis computations Gfan is not competitive in speed
-compared to programs such as CoCoA, Singular and Macaulay2.
+
+%package        doc
+Summary:        Gfan examples and documentation files
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+
+%description    doc
+Gfan examples and documentation files.
 
 %prep
 %setup -q -n %{name}%{version}
+%patch0
+%patch1
+%patch2
+%patch3 -p1
 
-%patch0 -p1
-%patch1 -p0
-%patch2 -p0 -b .str
+# manual is non-free
+rm -rf doc
+
+# Point to where the TOPCOM binaries will be installed
+sed -i \
+  "s|^#define MINKOWSKIPROG.*|#define MINKOWSKIPROGRAM \"%{_bindir}/essai\"|" \
+  minkowskisum.cpp
+
+# Fix the tests
+sed -i 's/^%s/%s _bases/' \
+    testsuite/0000InstallationSection/command \
+    testsuite/0001GroebnerFan/command \
+    testsuite/0003GroebnerFanMod3/command \
+    testsuite/0004GroebnerFanSymmetry/command \
+    testsuite/0007LeadingTerms/command \
+    testsuite/0008PolynomialSetUnion/command \
+    testsuite/0100SymmetricGfan/command \
+    testsuite/0100TwoVariables/command
+sed -i 's/^gfan/%s/' \
+    testsuite/0507InitialIdeal/command \
+    testsuite/0508IntegerGroebnerCone/command \
+    testsuite/0509IntegerGroebnerFan/command
+sed -i 's|func.poly|testsuite/0056WeildDivisor/func.poly|g' \
+    testsuite/0056WeildDivisor/command
+
+# No need to install a simple upstream Makefile to rsync homepage
+# directory to upstream page.
+rm -f homepage/Makefile
 
 %build
-make						\
-	OPTFLAGS="%{optflags} -DGMPRATIONAL"	\
-	PREFIX=%{_prefix}			\
-	CDD_LINKOPTIONS=-lcddgmp		\
-	CDD_INCLUDEOPTIONS=-I%{_includedir}/cdd	\
-	all
+make %{?_smp_mflags} \
+  OPTFLAGS="%{optflags} -DGMPRATIONAL -I/usr/include/cddlib" \
+  PREFIX=%{_prefix}
+
 
 %install
-rm -fr %buildroot
-mkdir -p %{buildroot}%{_bindir}
-cp -fa %{name} %{buildroot}%{_bindir}
-
-mkdir -p %{buildroot}%{_datadir}/%{name}
-cp -fa examples %{buildroot}%{_datadir}/%{name}
-
-mkdir -p %{buildroot}%{_docdir}/%{name}
-cp -far doc/* %{buildroot}%{_docdir}/%{name}
-cp -far homepage %{buildroot}%{_docdir}/%{name}
-# this tries to do an "upload", using scp with the package's author account...
-rm -f %{buildroot}%{_docdir}/%{name}/homepage/Makefile
-
-pushd %{buildroot}%{_bindir}
+make install DESTDIR=$RPM_BUILD_ROOT PREFIX=%{_prefix}
+pushd $RPM_BUILD_ROOT%{_bindir}
     ./%{name} installlinks
 popd
 
-%clean
-rm -rf %{buildroot}
+#%#check
+#./gfan _test
+
 
 %files
-%defattr(-,root,root)
+%doc COPYING LICENSE
 %{_bindir}/*
-%dir %{_datadir}/%{name}
-%{_datadir}/%{name}/*
-%dir %doc %{_docdir}/%{name}
-%doc %{_docdir}/%{name}/*
+
+%files          doc
+%doc examples
+%doc homepage
