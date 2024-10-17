@@ -3,7 +3,7 @@ Version:        0.5
 Release:        1%{?dist}
 Summary:        Software for Computing Gröbner Fans and Tropical Varieties
 License:        GPL+
-URL:            http://www.math.tu-berlin.de/~jensen/software/gfan/gfan.html
+URL:            https://www.math.tu-berlin.de/~jensen/software/gfan/gfan.html
 Source0:        http://www.math.tu-berlin.de/~jensen/software/gfan/gfan%{version}.tar.gz
 # Sent upstream 2011 Apr 27.  Respect DESTDIR
 Patch0:         gfan-respect-destdir.patch
