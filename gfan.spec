@@ -17,6 +17,7 @@ Patch2:         gfan-warning.patch
 # instead of priting warning telling to call it as "gfan_bases" and exiting
 Patch3:         gfan-permissive.patch
 
+BuildRequires:	make
 BuildRequires:  cddlib-devel
 BuildRequires:  gmp-devel
 
